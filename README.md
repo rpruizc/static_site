@@ -1,1 +1,1 @@
-# static site generator with Rust, tokio, and axum
+# Static Site Generator with Rust, tokio, and axum
