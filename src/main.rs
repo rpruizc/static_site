@@ -23,6 +23,24 @@ async fn main() -> Result<(), anyhow::Error> {
             thread::sleep(Duration::from_secs(1));
         }
     });
+
+    let app = Router::new().nest(
+        "/",
+        service::get(ServeDir::new(PUBLIC_DIR)).handle_error(|error: std::io::Error| {
+            Ok::<_, Infallible>((
+                StatusCode::INTERNAL_SERVER_ERROR,
+                format!("Unhandled internal error: {}", error),
+            ))
+        }),
+    );
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+    println!("serving site on {}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await?;
+
+    Ok(())
 }
 
 fn rebuild_site(content_dir: &str, output_dir: &str) -> Result<(), anyhow::Error> {
